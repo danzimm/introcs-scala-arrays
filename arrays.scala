@@ -1,4 +1,19 @@
 import scala.math.min
+import scala.util.Try
+
+object InputHelpers {
+  def readLine(reader: java.io.BufferedReader)() = {
+    val line = reader.readLine
+    if (line == null) None else Some(line)
+  }
+  def lineIter(reader: java.io.BufferedReader): Iterator[Option[String]] = 
+    Iterator.continually(readLine(reader))
+  def lineIter(file: String): Option[Iterator[Option[String]]] = Try({
+    val freader = new java.io.FileReader(file)
+    val breader = new java.io.BufferedReader(freader)
+    lineIter(breader)
+  }).toOption
+}
 
 object arrays {
 
@@ -14,7 +29,9 @@ object arrays {
   }
 
   def getIntsAsString(label: String, delimiter: String, a: Array[Int]): String = {
-    ""
+    label + Try(a.map(_.toString).reduceLeft({ (a: String, b: String) =>
+      a + delimiter + b
+    })).getOrElse("")
   }
 
   // Read the contents of filename into a.
@@ -22,7 +39,11 @@ object arrays {
   // Each line should be converted to Int (if possible) or 0 otherwise.
 
   def readFileIntoArray(filename: String, a: Array[Int]) {
-
+    InputHelpers.lineIter(filename).map({ (iter: Iterator[Option[String]]) => 
+      iter.take(a.length).toList.zipWithIndex.map({ (s: Option[String], i: Int) => 
+        a(i) = s.getOrElse("0").toInt
+      }.tupled)
+    })
   }
 
   //Minimum chunk
@@ -32,14 +53,13 @@ object arrays {
 
   def minimum(a: Array[Int]): Int = {
     require(a.length > 0) // if you delete this, the tests will not pass!
-
-    return 0; // so stub compiles
+    a.min
   }
   //CountEven chunk
   ///  Return the number of even values in a.
   ///  Example: If a contains {-4, 7, 6, 12, 9}, return 3. 
   def countEven(a: Array[Int]): Int = {
-    return 0; // so stub compiles
+    a.filter(_ % 2 == 0).length
   }
 
   //CountEven chunk
@@ -47,7 +67,7 @@ object arrays {
   ///  Example: If a contains {-4, 7, 6, 12, 9}, return 3. 
 
   def countOdd(a: Array[Int]): Int = {
-    return 0; // so stub compiles
+    a.filter(_ % 2 == 1).length
   }
 
   //PairwiseAdd chunk
@@ -57,7 +77,11 @@ object arrays {
   ///  then at the end sum should contain {9, 3, 14}. 
 
   def pairwiseAdd(a: Array[Int], b: Array[Int], c: Array[Int]) {
-
+    (if (a.length < b.length) a.zip(b) else b.zip(a)).
+      zipWithIndex.map({ (tup: (Int, Int), i: Int) =>
+        if (i < c.length)
+          c(i) = tup._1 + tup._2
+    }.tupled)
   }
   //NewPairwiseAdd chunk
   ///  Return a new array whose elements are the sums of the
@@ -66,12 +90,10 @@ object arrays {
   ///  Example: If a contains {2, 4, 6} and b contains {3, -1, 5}
   ///  then return an array containing {5, 3, 11}. 
   def newPairwiseAdd(a: Array[Int], b: Array[Int]): Array[Int] = {
-    val addSize = min(a.length, b.length)
-    val newArray = Array.fill(addSize)(0)
-
-    // your code here
-
-    newArray
+    (if (a.length < b.length) a.zip(b) else b.zip(a)).
+      map({ (a: Int, b: Int) =>
+        a + b
+    }.tupled)
   }
   //IsAscending chunk
   ///  Return true if the numbers are sorted in increasing order,
@@ -82,7 +104,9 @@ object arrays {
   ///  Examples: If a contains {2, 5, 5, 8}, return true;
   ///  if a contains {2, 5, 3, 8}, return false. 
   def isAscending(a: Array[Int]): Boolean = {
-    false
+    a.foldLeft(Some(a.min-1): Option[Int])({ (acc: Option[Int], x: Int) =>
+      acc.flatMap({ (y: Int) => if (x >= y) Some(x) else None })
+    }).isDefined
   }
 
   /*
@@ -108,8 +132,13 @@ object arrays {
 
   def getAscendingRun(a: Array[Int], position: Int): Int = {
     require(position < a.length)
-
-    -1 // replace with your code, which should return Int
+    println("\n\n\n")
+    position + a.zipWithIndex.dropWhile(_._2 < position).map(_._1).
+      zipWithIndex.
+      foldLeft((a.min-1, 0))( { (acc: (Int, Int), x: (Int, Int)) =>
+        println(s"testing $acc vs $x")
+        if (acc._1 <= x._1) (x._1, x._2) else (Int.MaxValue, acc._2)
+      })._2 + 1
   }
 
   /*
@@ -119,9 +148,17 @@ object arrays {
 
     2, 5, 8 | 3, 9, 9 | 8
   */
+  
+  def _getRunsAsString(a: Array[Int], p: Int = 0): String = {
+    if (p >= a.length)
+      return ""
+    val run = getAscendingRun(a, p)
+    val recur = _getRunsAsString(a, run)
+    a.slice(p, run).mkString(", ") + (if (recur.length > 0) " | " + recur else "")
+  }
 
   def getRunsAsString(a: Array[Int]): String = {
-    ""
+    _getRunsAsString(a)
   }
   // end PrintRuns chunk   
 }

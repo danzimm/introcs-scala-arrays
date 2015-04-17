@@ -28,3 +28,7 @@ local.properties
 # Emacs files
 *~
 \#*\#
+
+# vim files
+.*.swp
+
