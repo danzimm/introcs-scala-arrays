@@ -112,9 +112,9 @@ class RationalScalaTestFlatSpecMatchers extends FlatSpec with Matchers {
     getAscendingRun(a, 0) should be (3)
     getAscendingRun(a, 3) should be (6)
     getAscendingRun(a, 6) should be (7)
-    getAscendingRun(a, 7) should be (9)
-    getAscendingRun(a, 9) should be (11)
-    getAscendingRun(a, 11) should be (13)
+    getAscendingRun(a, 7) should be (15)
+    getAscendingRun(a, 9) should be (15)
+    getAscendingRun(a, 11) should be (15)
   }
 
   "getRunsAsString()" should "work with the provided example" in {
@@ -124,7 +124,7 @@ class RationalScalaTestFlatSpecMatchers extends FlatSpec with Matchers {
 
   it should "also work with different data" in {
     val a = Array(2, 5, 8, 3, 9, 9, 8, 6, 6, 4, 4, 2, 2, 0, 0)
-    getRunsAsString(a) should be ("2, 5, 8 | 3, 9, 9 | 8 | 6, 6 | 4, 4 | 2, 2 | 0, 0 |")
+    getRunsAsString(a) should be ("2, 5, 8 | 3, 9, 9 | 8 | 6, 6 | 4, 4 | 2, 2 | 0, 0")
   }
 }
 
